@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ===== CREAR SWITCH PRACTICA (ARRIBA DERECHA) =====
     const practicaContainer = document.createElement("div");
-    practicaContainer.style.position = "absolute"; // 🔴 CAMBIO AQUÍ (ANTES fixed)
+    practicaContainer.style.position = "absolute";
     practicaContainer.style.top = "20px";
     practicaContainer.style.right = "20px";
     practicaContainer.style.zIndex = "9999";
@@ -145,8 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         approved = approved.filter(c => !toRemove.has(c));
     }
-
-    // ===== CÁLCULO DE CRÉDITOS =====
+        // ===== CÁLCULO DE CRÉDITOS =====
     function calculateApprovedCredits() {
         let total = 0;
         for (let sem in semesters) {
@@ -240,6 +239,66 @@ document.addEventListener("DOMContentLoaded", () => {
                     div.classList.add("locked");
                 }
 
+                // ===== FLECHA DE PRERREQUISITOS =====
+                if (course.prereq && course.prereq.length > 0) {
+
+                    const prereqButton = document.createElement("button");
+                    prereqButton.className = "prereq-button";
+                    prereqButton.textContent = "▼";
+                    prereqButton.type = "button";
+
+                    const prereqContainer = document.createElement("div");
+                    prereqContainer.className = "prereq-container";
+                    prereqContainer.style.display = "none";
+
+                    const prereqTitle = document.createElement("div");
+                    prereqTitle.className = "prereq-title";
+                    prereqTitle.textContent = "Prerrequisitos:";
+
+                    prereqContainer.appendChild(prereqTitle);
+
+                    course.prereq.forEach(req => {
+
+                        const prereqCourse = courseMap[req];
+
+                        const prereqItem = document.createElement("div");
+                        prereqItem.className = "prereq-item";
+
+                        const prereqName = prereqCourse
+                            ? `${req} - ${prereqCourse.name}`
+                            : req;
+
+                        prereqItem.textContent = prereqName;
+
+                        if (approved.includes(req)) {
+                            prereqItem.classList.add("prereq-approved");
+                        } else {
+                            prereqItem.classList.add("prereq-not-approved");
+                        }
+
+                        prereqContainer.appendChild(prereqItem);
+                    });
+
+                    prereqButton.addEventListener("click", (event) => {
+                        event.stopPropagation();
+
+                        const abierto =
+                            prereqContainer.style.display === "block";
+
+                        if (abierto) {
+                            prereqContainer.style.display = "none";
+                            prereqButton.textContent = "▼";
+                        } else {
+                            prereqContainer.style.display = "block";
+                            prereqButton.textContent = "▲";
+                        }
+                    });
+
+                    div.appendChild(prereqButton);
+                    div.appendChild(prereqContainer);
+                }
+
+                // ===== CLIC PARA APROBAR / DESAPROBAR =====
                 if (unlocked || approved.includes(course.code)) {
                     div.addEventListener("click", () => {
                         if (approved.includes(course.code)) {
@@ -268,3 +327,81 @@ document.addEventListener("DOMContentLoaded", () => {
 
     render();
 });
+/* ===== PRERREQUISITOS ===== */
+
+.prereq-button {
+    position: absolute;
+    top: 5px;
+    right: 6px;
+
+    width: 24px;
+    height: 24px;
+
+    padding: 0;
+    margin: 0;
+
+    border: none;
+    background: transparent;
+
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+
+    cursor: pointer;
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prereq-button:hover {
+    transform: scale(1.15);
+}
+
+/* ===== CONTENEDOR DE PRERREQUISITOS ===== */
+
+.prereq-container {
+    width: 100%;
+    margin-top: 10px;
+    padding-top: 8px;
+
+    border-top: 1px solid #444;
+
+    text-align: left;
+    box-sizing: border-box;
+}
+
+/* ===== TÍTULO ===== */
+
+.prereq-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #ffffff;
+
+    margin-bottom: 6px;
+}
+
+/* ===== CADA PRERREQUISITO ===== */
+
+.prereq-item {
+    font-size: 12px;
+    line-height: 1.3;
+
+    margin: 4px 0;
+    padding: 3px 0;
+
+    font-weight: bold;
+}
+
+/* ===== PRERREQUISITO APROBADO ===== */
+
+.prereq-approved {
+    color: #2ecc71;
+}
+
+/* ===== PRERREQUISITO NO APROBADO ===== */
+
+.prereq-not-approved {
+    color: #e74c3c;
+}
