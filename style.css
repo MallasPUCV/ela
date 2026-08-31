@@ -403,3 +403,21 @@ h1 {
 .prereq-not-approved {
     color: #e74c3c;
 }
+
+
+/* ===== SEMESTRE CLICKEABLE ===== */
+
+.semester-title {
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.semester-title:hover {
+    transform: scale(1.08);
+    color: #2ecc71 !important;
+}
+
+.semester-title:active {
+    transform: scale(0.98);
+}
