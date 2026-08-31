@@ -199,8 +199,49 @@ document.addEventListener("DOMContentLoaded", () => {
             semDiv.className = "semester";
 
             const title = document.createElement("h2");
-            title.textContent = `S${sem}`;
-            semDiv.appendChild(title);
+title.textContent = `S${sem}`;
+title.classList.add("semester-title");
+
+title.addEventListener("click", () => {
+
+    // Verificar si todos los ramos desbloqueados del semestre
+    // ya están aprobados
+    const courses = semesters[sem];
+
+    const availableCourses = courses.filter(course => {
+        return isUnlocked(course) && !approved.includes(course.code);
+    });
+
+    // Si hay ramos disponibles sin aprobar, aprobarlos todos
+    if (availableCourses.length > 0) {
+
+        availableCourses.forEach(course => {
+            if (!approved.includes(course.code)) {
+                approved.push(course.code);
+            }
+        });
+
+    } else {
+
+        // Si ya están todos aprobados, desmarcar los ramos
+        // del semestre uno por uno
+        courses.forEach(course => {
+            if (approved.includes(course.code)) {
+                removeWithDependents(course.code);
+            }
+        });
+
+    }
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(approved)
+    );
+
+    render();
+});
+
+semDiv.appendChild(title);
 
             semesters[sem].forEach(course => {
                 const div = document.createElement("div");
